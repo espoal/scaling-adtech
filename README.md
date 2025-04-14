@@ -1,11 +1,11 @@
 # scaling-adtech
 
 In this repository there is an example of a simple ad server in golang. Due to time constraints, I had to make some
-sacrifices, but I hope it will be helpful in giving a glimpse of my prioritization strategy. Given more time I would 
+sacrifices, but I hope it will be helpful in giving a glimpse of my prioritization strategies. Given more time I would 
 have:
 - Implemented tests
 - Spent more time on the validation
-- Improve documentation
+- Improved the documentation
 
 Starts it with
 ```bash
