@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"os"
 	"os/signal"
@@ -50,9 +51,10 @@ func main() {
 	defer pool.Close()
 
 	// Initialize services
-	lineItemService := service.NewLineItemService(log, pool)
-	adService := service.NewAdService(log, lineItemService)
+	lineItemService := service.NewLineItemService(pool, log)
+	adService := service.NewAdService(lineItemService, log)
 	trackingService := service.NewTrackingService(log)
+	validate := validator.New(validator.WithRequiredStructEnabled())
 
 	// Setup Fiber app
 	app := fiber.New(fiber.Config{
@@ -73,7 +75,7 @@ func main() {
 	api := app.Group("/api/v1")
 
 	// Line Item endpoints
-	lineItemHandler := handler.NewLineItemHandler(lineItemService, log)
+	lineItemHandler := handler.NewLineItemHandler(lineItemService, validate, log)
 	api.Post("/lineitems", lineItemHandler.Create)
 	api.Get("/lineitems", lineItemHandler.GetAll)
 	api.Get("/lineitems/:id", lineItemHandler.GetByID)
@@ -83,7 +85,7 @@ func main() {
 	api.Get("/ads", adHandler.GetWinningAds)
 
 	// Tracking endpoint - TO BE IMPLEMENTED BY CANDIDATE
-	trackingHandler := handler.NewTrackingHandler(TrackingService, log)
+	trackingHandler := handler.NewTrackingHandler(trackingService, validate, log)
 	api.Post("/tracking", trackingHandler.TrackEvent)
 
 	// Start server

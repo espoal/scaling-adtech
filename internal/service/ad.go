@@ -13,10 +13,10 @@ type AdService struct {
 	lineItemService *LineItemService
 }
 
-func NewAdService(log *zap.SugaredLogger, lineItemService *LineItemService) *AdService {
+func NewAdService(lineItemService *LineItemService, log *zap.SugaredLogger) *AdService {
 	return &AdService{
-		log:             log,
 		lineItemService: lineItemService,
+		log:             log,
 	}
 }
 

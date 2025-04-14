@@ -26,7 +26,7 @@ type LineItemService struct {
 }
 
 // NewLineItemService creates a new LineItemService
-func NewLineItemService(log *zap.SugaredLogger, pool *pgxpool.Pool) *LineItemService {
+func NewLineItemService(pool *pgxpool.Pool, log *zap.SugaredLogger) *LineItemService {
 	return &LineItemService{
 		db_pool: pool,
 		log:     log,
@@ -143,8 +143,8 @@ func (s *LineItemService) GetAll(advertiserID, placement, category, keyword, sta
     WHERE true
     	AND (($1='') OR advertiser_id=$1) 
     	AND (($2='') OR placement=$2)
-		AND (($3='') OR $3 = ANY(category))
-		AND (($4='') OR $4 = ANY(keyword))
+		AND (($3='') OR $3 = ANY(categories))
+		AND (($4='') OR $4 = ANY(keywords))
 		AND (($5='') OR status=$5);`
 
 	rows, err := s.db_pool.Query(ctx, statement, advertiserID, placement, category, keyword, status)

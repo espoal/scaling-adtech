@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/go-playground/validator/v10"
 	"sweng-task/internal/model"
 
 	"sweng-task/internal/service"
@@ -11,15 +12,17 @@ import (
 
 // LineItemHandler handles HTTP requests related to line items
 type LineItemHandler struct {
-	service *service.LineItemService
-	log     *zap.SugaredLogger
+	service   *service.LineItemService
+	validator *validator.Validate
+	log       *zap.SugaredLogger
 }
 
 // NewLineItemHandler creates a new LineItemHandler
-func NewLineItemHandler(service *service.LineItemService, log *zap.SugaredLogger) *LineItemHandler {
+func NewLineItemHandler(service *service.LineItemService, validator *validator.Validate, log *zap.SugaredLogger) *LineItemHandler {
 	return &LineItemHandler{
-		service: service,
-		log:     log,
+		service:   service,
+		validator: validator,
+		log:       log,
 	}
 }
 
@@ -34,7 +37,13 @@ func (h *LineItemHandler) Create(c *fiber.Ctx) error {
 		})
 	}
 
-	// Note: Validation logic should be implemented by the candidate
+	if err := h.validator.Struct(input); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"code":    fiber.StatusBadRequest,
+			"message": "Validation error",
+			"details": err.Error(),
+		})
+	}
 
 	lineItem, err := h.service.Create(input)
 	if err != nil {
