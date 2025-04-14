@@ -144,10 +144,9 @@ func (s *LineItemService) GetAll(advertiserID, placement, category, keyword, sta
     	AND (($1='') OR advertiser_id=$1) 
     	AND (($2='') OR placement=$2)
 		AND (($3='') OR $3 = ANY(categories))
-		AND (($4='') OR $4 = ANY(keywords))
-		AND (($5='') OR status=$5);`
+		AND (($4='') OR $4 = ANY(keywords));`
 
-	rows, err := s.db_pool.Query(ctx, statement, advertiserID, placement, category, keyword, status)
+	rows, err := s.db_pool.Query(ctx, statement, advertiserID, placement, category, keyword)
 	defer rows.Close()
 
 	if err != nil {
