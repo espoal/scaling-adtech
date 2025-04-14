@@ -143,8 +143,8 @@ func (s *LineItemService) GetAll(advertiserID, placement, category, keyword, sta
     WHERE true
     	AND (($1='') OR advertiser_id=$1) 
     	AND (($2='') OR placement=$2)
-		AND (($3='') OR category=$3)
-		AND (($4='') OR keyword=$4)
+		AND (($3='') OR $3 = ANY(category))
+		AND (($4='') OR $4 = ANY(keyword))
 		AND (($5='') OR status=$5);`
 
 	rows, err := s.db_pool.Query(ctx, statement, advertiserID, placement, category, keyword, status)
@@ -189,42 +189,14 @@ func (s *LineItemService) FindMatchingLineItems(placement string, category, keyw
 
 	var result []*model.LineItem
 
-	/*	for _, item := range s.items {
-			// Skip items not matching the placement or not active
-			if item.Placement != placement || item.Status != model.LineItemStatusActive {
-				continue
-			}
+	result, err := s.GetAll("", placement, category, keyword, "active")
+	if err != nil {
+		s.log.Errorw("Failed to retrieve line items",
+			"error", err,
+			"placement", placement,
+		)
+		return nil, err
+	}
 
-			// Apply category filter if specified
-			if category != "" {
-				categoryFound := false
-				for _, cat := range item.Categories {
-					if cat == category {
-						categoryFound = true
-						break
-					}
-				}
-				if !categoryFound {
-					continue
-				}
-			}
-
-			// Apply keyword filter if specified
-			if keyword != "" {
-				keywordFound := false
-				for _, kw := range item.Keywords {
-					if kw == keyword {
-						keywordFound = true
-						break
-					}
-				}
-				if !keywordFound {
-					continue
-				}
-			}
-
-			result = append(result, item)
-		}
-	*/
 	return result, nil
 }

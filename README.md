@@ -7,4 +7,4 @@
 - [x] Postgres connection
 - [ ] Validation
 - [ ] Winning ad
-- [ ] Logging Endpoint
+- [ ] Tracking

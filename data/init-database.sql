@@ -13,3 +13,7 @@ CREATE TABLE line_items (
 	created_at    timestamp,
 	updated_at    timestamp
 );
+
+CREATE INDEX placement_index ON line_items (placement);
+CREATE INDEX placement_index_with_category ON line_items (placement) include (categories);
+CREATE INDEX placement_index_with_category_and_keywords ON line_items (placement) include (categories, keywords);

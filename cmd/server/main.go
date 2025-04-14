@@ -44,14 +44,15 @@ func main() {
 	// Initialize database connection
 	pool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		log.Error(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
 	}
 	defer pool.Close()
 
 	// Initialize services
 	lineItemService := service.NewLineItemService(log, pool)
-	// Note: AdService implementation is left for the candidate
+	adService := service.NewAdService(log, lineItemService)
+	trackingService := service.NewTrackingService(log)
 
 	// Setup Fiber app
 	app := fiber.New(fiber.Config{
@@ -78,11 +79,12 @@ func main() {
 	api.Get("/lineitems/:id", lineItemHandler.GetByID)
 
 	// Ad endpoints - TO BE IMPLEMENTED BY CANDIDATE
-	adHandler := handler.NewAdHandler(log)
+	adHandler := handler.NewAdHandler(adService, log)
 	api.Get("/ads", adHandler.GetWinningAds)
 
 	// Tracking endpoint - TO BE IMPLEMENTED BY CANDIDATE
-	// api.Post("/tracking", trackingHandler.TrackEvent)
+	trackingHandler := handler.NewTrackingHandler(TrackingService, log)
+	api.Post("/tracking", trackingHandler.TrackEvent)
 
 	// Start server
 	go func() {
