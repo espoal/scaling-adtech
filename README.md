@@ -3,7 +3,8 @@
 
 # TODO
 
-- [ ] Postgres setup
-- [ ] Postgres connection
+- [x] Postgres setup
+- [x] Postgres connection
+- [ ] Validation
 - [ ] Winning ad
 - [ ] Logging Endpoint

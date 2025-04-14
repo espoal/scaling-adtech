@@ -80,8 +80,11 @@ func (h *LineItemHandler) GetByID(c *fiber.Ctx) error {
 func (h *LineItemHandler) GetAll(c *fiber.Ctx) error {
 	advertiserID := c.Query("advertiser_id")
 	placement := c.Query("placement")
+	category := c.Query("category")
+	keyword := c.Query("keyword")
+	status := c.Query("status")
 
-	lineItems, err := h.service.GetAll(advertiserID, placement)
+	lineItems, err := h.service.GetAll(advertiserID, placement, category, keyword, status)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"code":    fiber.StatusInternalServerError,

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"os"
 	"os/signal"
 	"syscall"
@@ -19,7 +21,7 @@ import (
 
 func main() {
 	// Initialize logger
-	logger, err := zap.NewProduction()
+	logger, err := zap.NewDevelopment()
 	if err != nil {
 		fmt.Printf("Error initializing logger: %v\n", err)
 		os.Exit(1)
@@ -39,8 +41,16 @@ func main() {
 		"server_port", cfg.Server.Port,
 	)
 
+	// Initialize database connection
+	pool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
+	}
+	defer pool.Close()
+
 	// Initialize services
-	lineItemService := service.NewLineItemService(log)
+	lineItemService := service.NewLineItemService(log, pool)
 	// Note: AdService implementation is left for the candidate
 
 	// Setup Fiber app
@@ -68,7 +78,8 @@ func main() {
 	api.Get("/lineitems/:id", lineItemHandler.GetByID)
 
 	// Ad endpoints - TO BE IMPLEMENTED BY CANDIDATE
-	// api.Get("/ads", adHandler.GetWinningAds)
+	adHandler := handler.NewAdHandler(log)
+	api.Get("/ads", adHandler.GetWinningAds)
 
 	// Tracking endpoint - TO BE IMPLEMENTED BY CANDIDATE
 	// api.Post("/tracking", trackingHandler.TrackEvent)
